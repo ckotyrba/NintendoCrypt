@@ -1,4 +1,4 @@
-const arrayA = [[],[]]
+const arrayA = [[], []]
 
 for (let i = 0; i < 32; i++) {
     arrayA[0].push({
@@ -29,7 +29,8 @@ function updateButtonState(button, arrayElement) {
     }
 }
 
-function toggleState(button, arrayElement) {
+function toggleState(button, array, index) {
+    let arrayElement = array[index]
     switch (arrayElement.data) {
         case 0:
             arrayElement.data = 1;
@@ -42,7 +43,7 @@ function toggleState(button, arrayElement) {
             break;
     }
     updateButtonState(button, arrayElement);
-    for(let relatedElement of arrayElement.relatedElements){
+    for (let relatedElement of arrayElement.relatedElements) {
         console.log(relatedElement)
     }
     // aktualisiere alle betroffene elements
@@ -59,7 +60,7 @@ function createButtons(container, array) {
         const button = document.createElement("button");
         button.innerText = i;
         updateButtonState(button, array[i]);
-        button.addEventListener("click", () => toggleState(button, array[i]));
+        button.addEventListener("click", () => toggleState(button, array, i));
         container.appendChild(button);
     }
 }
@@ -78,27 +79,33 @@ function createEquations() {
         equal.innerText = "="
         row.appendChild(equal)
 
-        for (const elementString of lineResult[1].split("+")) {
+        for (let elementString of lineResult[1].split("+")) {
             const element = document.createElement("span");
             element.classList.add("equationElement")
             element.innerText = elementString
 
-            const regex = /a\[(\d)\]_(\d)/g
+            let matchArray = extractElements(elementString)
 
-            var match = regex.exec(elementString)
-            element.firstSubElement = { arrayIndex: match[1], index: match[2] }
+            element.firstSubElement = { arrayIndex: matchArray[0][1], index: matchArray[0][2] }
             arrayA[element.firstSubElement.arrayIndex][element.firstSubElement.index].relatedElements.push(element)
 
-            match = regex.exec(elementString)
-            element.secondSubElement = { arrayIndex: match[1], index: match[2] }
-            if ((element.firstSubElement.arrayIndex == 0 && element.firstSubElement.index == 0)) {
-                console.log(`${element.firstSubElement.arrayIndex}_${element.firstSubElement.index}=${elementString}`)
-            }
+            element.secondSubElement = { arrayIndex: matchArray[1][1], index: matchArray[1][2] }
+            arrayA[element.secondSubElement.arrayIndex][element.secondSubElement.index].relatedElements.push(element)
 
             row.appendChild(element)
         }
         textContainer.appendChild(row)
     }
+}
+
+function extractElements(elementString) {
+    var regex = /a\[([0-9]+)\]_([0-9]+)/g
+    let matches = elementString.matchAll(regex);
+    let matchArray = []
+    for (const match of matches) {
+        matchArray.push(match)
+    }
+    return matchArray;
 }
 
 function createResultBLabel(bString) {
