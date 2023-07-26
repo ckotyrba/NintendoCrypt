@@ -1,0 +1,45 @@
+button {
+    width: 30px;
+    height: 30px;
+    font-size: 12px;
+}
+
+button[data-state="0"] {
+    background-color: red;
+}
+
+button[data-state="1"] {
+    background-color: rgb(0, 255, 0);
+}
+
+button[data-state="undefined"] {
+    background-color: grey;
+}
+
+.array-container {
+    margin-bottom: 20px;
+}
+
+.equationContainer{
+    display: flex; /* Verwende Flexbox für das Layout */
+}
+
+.equationElement {
+    margin-right: 10px;
+    font-weight: bold;
+    white-space: nowrap; /* Text nicht umbrechen */
+    display: block; /* Stellt alle spans in einer neuen Zeile dar */
+    margin-bottom: 5px; /* Fügt einen Abstand zwischen den Spans hinzu */
+}
+
+.equationElement[data-state="1"] {
+    background-color: rgb(0, 255, 0);
+}
+
+.equationElement[data-state="0"] {
+    background-color: red;
+}
+
+.equationElement[data-state="undefined"] {
+    background-color: grey;
+}

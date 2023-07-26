@@ -21,6 +21,10 @@ struct entry {
 	{
 		return a_ArrayOffset == other.a_ArrayOffset && index == other.index;
 	}
+
+	string to_String() {
+		return "a[" + to_string(a_ArrayOffset) + "]" + to_string(index);
+	}
 };
 
 /**
@@ -28,10 +32,12 @@ struct entry {
 * */
 vector<tuple<entry, entry>> equation(int stage) {
 	vector<tuple<entry, entry>> result{};
-	for (int i = 0; i < (stage + 1) / 2; i++) {
-		int upperIndex = stage - i;
-		result.push_back(make_tuple(entry{ 0,upperIndex }, entry{ 1,i }));
-		result.push_back(make_tuple(entry{ 0,i }, entry{ 1,upperIndex }));
+	for (int lowerIndex = 0; lowerIndex < (stage + 1) / 2; lowerIndex++) {
+		int upperIndex = stage - lowerIndex;
+		upperIndex %= 32;
+		lowerIndex %= 32;
+		result.push_back(make_tuple(entry{ 0,upperIndex }, entry{ 1,lowerIndex }));
+		result.push_back(make_tuple(entry{ 0,lowerIndex }, entry{ 1,upperIndex }));
 	}
 	if (stage % 2 == 0)
 		result.push_back(make_tuple(entry{ 0, stage / 2 }, entry{ 1, stage / 2 }));
@@ -112,25 +118,87 @@ vector<vector<vector<optional<bool>>>> allPossibleSolutions(vector<tuple<entry, 
 	return results;
 }
 
+unsigned int bitArrayToInt32(vector<bool> arr)
+{
+	bitset<32> result;
+	for (int i = 0; i < arr.size(); i++) {
+		result.set(i, arr[i]);
+	}
+	return (int)result.to_ulong();
+}
+
+
+vector<unsigned int> transformBitArray(vector<vector<optional<bool>>> currentSolution) {
+	vector<unsigned int> results;
+	for (vector <optional<bool>> boolVector : currentSolution) {
+		vector<bool> realValues;
+		for (optional<bool> value : boolVector) {
+			realValues.push_back(*value);
+		}
+		results.push_back(bitArrayToInt32(realValues));
+	}
+	return results;
+}
+
+string currentEquationString(vector<tuple<entry, entry>> equation) {
+	string result = "";
+	for (int i = 0; i < equation.size(); i++) {
+		auto tuple = equation[i];
+		auto x = get<0>(tuple);
+		auto y = get<1>(tuple);
+		result += x.to_String() + y.to_String();
+		if (i < equation.size() - 1)
+			result += " + ";
+	}
+	return result;
+}
+
 
 bool solve(int stage, vector<bool> b, vector<vector<optional<bool>>> currentSolution) {
 	vector<vector<bool>> result;
 
 	bool b_stage = b[stage];
 	auto currentEquation = equation(stage);
+	cout << stage;
+	cout << ":";
+
+
+	//cout << currentEquationString(currentEquation);
+	cout << endl;
 	vector<entry> variableIndices = findUnknownIndices(currentEquation, currentSolution);
-	if (variableIndices.size() == 0 && solutionPossible(currentEquation, currentSolution, b_stage)) {
-		cout << "LÖSUNG GEFUNDEN";
-		return true;
+	if (variableIndices.size() == 0) {
+		if (stage == 63) {
+			cout << "LÖSUNG GEFUNDEN";
+
+			vector<unsigned int> solution = transformBitArray(currentSolution);
+			for (int i = 0; i < solution.size(); i++) {
+				if (i > 0) {
+					cout << ' ';
+				}
+				cout << setfill('0') << setw(8) << hex << solution[i];       // print result
+			}
+			return true;
+		}
+		if (solutionPossible(currentEquation, currentSolution, b_stage))
+			return solve(stage + 1, b, currentSolution);
 	}
-	cout << stage << endl;
-	auto possibleSolutions = allPossibleSolutions(currentEquation, variableIndices, currentSolution, b_stage);
-	if (possibleSolutions.size() == 0) {
-		return false;
+	else {
+		auto possibleSolutions = allPossibleSolutions(currentEquation, variableIndices, currentSolution, b_stage);
+		for (auto newSolution : possibleSolutions) {
+			if (solve(stage + 1, b, newSolution)) {
+				return true;
+			}
+		}
 	}
-	for (auto newSolution : possibleSolutions) {
-		solve(stage + 1, b, newSolution);
+	for (int j = 0; j < 2; j++) {
+		for (int i = 31; i >= 0; i--) {
+			if (currentSolution[j][i].has_value())
+				cout << *currentSolution[j][i] ? '1' : '0';
+			else { cout << '?'; }
+		}
+		cout << ' ';
 	}
+	cout << endl;
 	return false;
 }
 
@@ -142,6 +210,15 @@ int main()
 
 	b[0] = 0x000073af;
 	b[1] = 0x00000000;
+
+	b[0] = 0x738377c1;
+	b[1] = 0x00000000;
+
+	b[0] = 0x46508fb7;
+	b[1] = 0x6677e201;
+
+
+
 	for (int i = 0; i < 2 * 32; i++) {
 		bitset[i] = (b[i / 32] >> i) & 1;
 	}
