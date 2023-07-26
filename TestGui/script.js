@@ -15,19 +15,7 @@ const array1Container = document.getElementById("array1-container");
 const array2Container = document.getElementById("array2-container");
 const textContainer = document.getElementById("text-container");
 
-function updateButtonState(button, arrayElement) {
-    switch (arrayElement.data) {
-        case 0:
-            button.setAttribute("data-state", "0");
-            break;
-        case 1:
-            button.setAttribute("data-state", "1");
-            break;
-        default:
-            button.setAttribute("data-state", "undefined");
-            break;
-    }
-}
+
 
 function toggleState(button, array, index) {
     let arrayElement = array[index]
@@ -42,12 +30,39 @@ function toggleState(button, array, index) {
             arrayElement.data = 0;
             break;
     }
-    updateButtonState(button, arrayElement);
+    button.setAttribute("data-state", arrayElement.data);
+
     for (let relatedElement of arrayElement.relatedElements) {
         console.log(relatedElement)
-    }
-    // aktualisiere alle betroffene elements
+        let arrayElement1 = arrayA[relatedElement.firstSubElement.arrayIndex][relatedElement.firstSubElement.index].data
+        let arrayElement2 = arrayA[relatedElement.secondSubElement.arrayIndex][relatedElement.secondSubElement.index].data
 
+        if (arrayElement1 == '0' || arrayElement2 == '0') {
+            relatedElement.setAttribute("data-state", "0")
+        }
+        else if (arrayElement1 == '1' && arrayElement2 == '1') {
+            relatedElement.setAttribute("data-state", "1")
+        } else {
+            relatedElement.setAttribute("data-state", "undefined")
+        }
+
+
+    }
+
+}
+
+function updateButtonState(button, arrayElement) {
+    switch (arrayElement.data) {
+        case 0:
+            button.setAttribute("data-state", "0");
+            break;
+        case 1:
+            button.setAttribute("data-state", "1");
+            break;
+        default:
+            button.setAttribute("data-state", "undefined");
+            break;
+    }
 }
 
 function createButtons(container, array) {
