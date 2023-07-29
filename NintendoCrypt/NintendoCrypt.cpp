@@ -4,6 +4,7 @@
 #include <bitset>
 #include <vector>
 #include <tuple>
+#include "NintendoCrypt.h"
 
 
 using namespace std;
@@ -22,9 +23,9 @@ int main()
 	//for (int i = 0; i < size / 16; i++) {   // Read size / 16 integers to a
 	//	cin >> hex >> a[i];
 	//}
-	a[0] = 0xb0c152f9;
+	a[0] = 0x0;
 	//10110000110000010101001011111001
-	a[1] = 0xebf2831f;
+	a[1] = 0x1;
 	//11101011111100101000001100011111
 
 	//=>
@@ -34,22 +35,41 @@ int main()
 	//b[1]==
 	//01100110011101111110001000000001
 
+	cout << a[0] << "/" << a[1] << ":";
+	encryptAndPrint(size, b, a);
 
+	a[0] = 0x1;
+	a[1] = 0x1;
+	cout << a[0] << "/" << a[1] << ":";
+	encryptAndPrint(size, b, a);
+
+	a[0] = 0x2;
+	a[1] = 0x1;
+	cout << a[0] << "/" << a[1] << ":";
+	encryptAndPrint(size, b, a);
+
+
+
+
+
+	/*
+	   Good luck humans
+	*/
+	return 0;
+}
+
+void encryptAndPrint(int size, unsigned int* b, unsigned int* a)
+{
 	for (int i = 0; i < size / 16; i++) {   // Write size / 16 zeros to b
 		b[i] = 0;
 	}
 
-	for (int i = 0; i < 32; i++)
-		for (int j = 0; j < 32; j++) {
-			bitset<32> zwischen = ((a[0] >> i) & (a[1] >> j) & 1) << ((i + j) % 32);
-			auto lesbar = zwischen.to_string();
-
-			b[(i + j) / 32] ^= ((a[0] >> i) & (a[1] >> j) & 1) << ((i + j) % 32); // Magic centaurian operation
-
-			bitset<32> ergebnis = b[0];
-			auto ergebnisLesbar = ergebnis.to_string();
-
+	for (int i = 0; i < size; i++)
+		for (int j = 0; j < size; j++) {
+			b[(i + j) / 32] ^= ((a[i / 32] >> (i % 32)) &
+				(a[j / 32 + size / 32] >> (j % 32)) & 1) << ((i + j) % 32);   // Magic centaurian operation
 		}
+
 
 	for (int i = 0; i < size / 16; i++) {
 		if (i > 0) {
@@ -58,11 +78,4 @@ int main()
 		cout << setfill('0') << setw(8) << hex << b[i];       // print result
 	}
 	cout << endl;
-
-
-
-	/*
-	   Good luck humans
-	*/
-	return 0;
 }

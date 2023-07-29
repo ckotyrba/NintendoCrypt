@@ -27,7 +27,11 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="NintendoCryptSimple.cpp" />
+    <ClCompile Include="NintendoCrypt.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="NintendoCrypt.h" />
+    <ClInclude Include="NintendoCryptSimple.h" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>16.0</VCProjectVersion>
